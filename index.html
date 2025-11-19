@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Diagnosa Penyakit Tanaman — Agroteknologi</title>
+  <style>
+    :root{--green1:#f0f7f0;--green2:#4caf50;--green3:#2e7d32;--accent:#7bbf6a}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial; background:var(--green1); color:#1f3324; margin:0}
+    header{background:linear-gradient(90deg,var(--green2),var(--green3)); color:#fff; padding:28px 16px; text-align:center}
+    header h1{margin:0;font-size:1.6rem}
+    header p{margin:6px 0 0;opacity:.95}
+    main{max-width:980px;margin:22px auto;padding:18px}
+    .card{background:#fff;border-radius:10px;padding:16px;box-shadow:0 6px 18px rgba(30,50,36,.06);margin-bottom:16px}
+    .controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .search{flex:1;min-width:220px}
+    input[type="text"],textarea,select{width:100%;padding:10px;border:1px solid #dbeadb;border-radius:8px}
+    button{background:var(--green2);color:#fff;padding:10px 14px;border:none;border-radius:8px;cursor:pointer}
+    .symptoms{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;margin-top:12px}
+    label.symptom{display:flex;gap:8px;align-items:flex-start;background:#fbfff9;padding:10px;border-radius:8px;border:1px solid #eef8ee}
+    .results .item{border-left:4px solid var(--accent);padding:12px;margin-bottom:12px;border-radius:6px;background:#fff}
+    .badge{display:inline-block;background:var(--accent);color:#06320a;padding:4px 8px;border-radius:999px;font-weight:600;margin-left:8px}
+    details{margin-top:8px}
+    footer{text-align:center;color:#475a4a;font-size:.9rem;padding:18px}
+    @media (max-width:520px){header h1{font-size:1.2rem}}
+  </style>
+</head>
+<body>
+  <header>
+    <div style="margin-bottom:10px; font-size:1.1em;">
+      <strong>Kelompok 3</strong><br>
+      Naya Gisela Pulisir<br>
+      Nivia Gloria Aguw<br>
+      Prayer Hizkia Maarthen Gonie<br>
+      Ravael Jireh Ilham Sitinjak<br>
+      Atalia G. M. Pasla
+    </div>
+    <h1>Diagnosa Penyakit Tanaman</h1>
+    <p>Versi untuk Mahasiswa Agroteknologi — pilih gejala, lalu klik <strong>Diagnosa</strong>.</p>
+  </header>
+
+  <main>
+    <div class="card">
+      <h3>Cara pakai singkat</h3>
+      <ol>
+        <li>Pilih gejala pada daftar (boleh lebih dari satu).</li>
+        <li>Klik tombol <strong>Diagnosa</strong> untuk melihat penyakit yang paling cocok.</li>
+        <li>Baca penjelasan dan rekomendasi penanganan singkat.</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <h3>Pilih Gejala (centang sesuai yang terlihat)</h3>
+      <div class="symptoms" id="symptomList">
+        <!-- symptoms injected by JS -->
+      </div>
+
+      <div style="margin-top:12px;display:flex;gap:8px;">
+        <button id="diagnoseBtn">Diagnosa</button>
+        <button id="clearBtn" style="background:#ccc;color:#122">Bersihkan</button>
+        <button id="copyBtn" style="background:#2e7d32">Salin Hasil</button>
+      </div>
+    </div>
+
+    <div class="card results" id="results">
+      <h3>Hasil Diagnosa</h3>
+      <div id="output">
+        <p>Pilih gejala lalu klik <strong>Diagnosa</strong> untuk melihat hasil.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Daftar Penyakit (referensi gejala ringkas)</h3>
+      <p>Daftar berisi penyakit umum dan gejala—cocok untuk rujukan cepat.</p>
+      <details>
+        <summary>Perlihatkan semua penyakit</summary>
+        <pre id="diseaseList" style="white-space:pre-wrap"></pre>
+      </details>
+    </div>
+
+  </main>
+
+  <footer>&copy; 2025 Sistem Diagnosa — untuk tujuan pendidikan (Mahasiswa Agroteknologi)</footer>
+
+  <script>
+    // Dataset penyakit dan gejala (bahasa Indonesia)
+    const DISEASES = [
+      {id:1,name:'Layu Fusarium (Fusarium oxysporum)',cause:'Jamur',symptoms:[
+        'Daun menguning mulai dari bawah',
+        'Tangkai daun layu meski tanah masih basah',
+        'Akar cokelat gelap',
+        'Batang bawah menghitam dan membusuk',
+        'Pertumbuhan tanaman terhambat drastis'
+      ],desc:'Jamur vaskular yang menyumbat pembuluh air sehingga tanaman mengalami layu walau tanah lembap.',treatment:'Buang dan bakar tanaman terserang, lakukan rotasi tanaman, gunakan bibit tahan, sanitasi alat.',prevention:'Rotasi tanaman, sanitasi media, hindari genangan air, gunakan varietas tahan.'},
+
+      {id:2,name:'Busuk Akar – Rhizoctonia',cause:'Jamur',symptoms:[
+        'Daun pucat dan menggulung',
+        'Tanaman mudah tercabut karena akar rapuh',
+        'Akar cokelat kemerahan',
+        'Pertumbuhan terhambat dan kerdil',
+        'Pangkal batang lembek'
+      ],desc:'Serangan jamur tanah yang menyebabkan pembusukan pangkal dan akar sehingga tanaman mudah roboh.',treatment:'Perbaiki drainase, tambahkan amendemen organik, aplikasi fungisida spesifik jika perlu.',prevention:'Hindari kelembapan berlebih, sanitasi, rotasi tanaman.'},
+
+      {id:3,name:'Busuk Pangkal Batang (Sclerotium rolfsii)',cause:'Jamur',symptoms:[
+        'Pangkal batang berwarna cokelat basah',
+        'Miselium putih seperti kapas di sekitar pangkal',
+        'Daun layu mendadak',
+        'Buah sklerotia kecil seperti biji sawi di permukaan tanah',
+        'Tanaman roboh dan mati cepat'
+      ],desc:'Jamur tanah agresif yang membusukkan pangkal batang; sering muncul miselium putih.',treatment:'Kurangi kelembapan pangkal, buang bagian terinfeksi, aplikasi fumigan atau fungisida tanah jika sesuai.',prevention:'Perbaiki drainase, sanitasi lahan, hindari tumpukan mulsa basah.'},
+
+      {id:4,name:'Karat Daun (Rust)',cause:'Jamur',symptoms:[
+        'Bercak kuning pada permukaan daun',
+        'Bintik karat cokelat-oranye di bawah daun',
+        'Daun mudah rontok',
+        'Pertumbuhan tunas melambat',
+        'Daun mengering dari tepi'
+      ],desc:'Jamur epifit yang menyerang jaringan daun, menurunkan kemampuan fotosintesis.',treatment:'Buang daun terinfeksi, aplikasikan fungisida kontak, kontrol gulma inang.',prevention:'Jaga sirkulasi udara, hindari penyiraman dari atas, gunakan varietas tahan.'},
+
+      {id:5,name:'Antraknosa (Colletotrichum spp.)',cause:'Jamur',symptoms:[
+        'Bercak cokelat kehitaman pada daun',
+        'Lesi berbentuk bulat dengan tepi lebih gelap',
+        'Daun berlubang',
+        'Batang muda menghitam',
+        'Pertumbuhan terganggu, pucuk melemah'
+      ],desc:'Jamur yang menyebabkan bercak nekrotik pada daun, batang, dan buah.',treatment:'Buang bagian terserang, fungisida sistemik jika perlu, sanitasi alat.',prevention:'Hindari kelembapan berlebih, rotasi tanaman, benih bersih.'},
+
+      {id:6,name:'Busuk Daun (Phytophthora)',cause:'Oomycete',symptoms:[
+        'Daun tampak berair seperti terbakar',
+        'Bercak melebar dan cepat menyatu',
+        'Daun rontok sebelum kering',
+        'Batang muda ikut membusuk',
+        'Area lembap memperparah penyebaran'
+      ],desc:'Patogen mirip jamur yang menyukai kondisi basah; cepat menghancurkan jaringan basah.',treatment:'Perbaiki drainase, aplikasikan fungisida yang sesuai, buang tanaman terinfeksi.',prevention:'Hindari penggenangan, jarak tanam cukup, sanitasi.'},
+
+      {id:7,name:'Embun Tepung (Powdery mildew)',cause:'Jamur',symptoms:[
+        'Lapisan putih seperti tepung di permukaan daun',
+        'Daun menguning',
+        'Pertumbuhan daun sangat lambat',
+        'Daun melengkung dan mengering',
+        'Serangan berat menyebabkan tanaman kerdil'
+      ],desc:'Jamur epifit yang membentuk lapisan putih berdebu pada daun dan batang.',treatment:'Spray air + sabun ringan, fungisida sistemik jika parah, pangkas bagian terinfeksi.',prevention:'Jaga ventilasi, hindari kelembapan malam hari, varietas tahan.'},
+
+      {id:8,name:'Virus Mosaic (Nilam / umum)',cause:'Virus',symptoms:[
+        'Daun belang kuning-hijau seperti mozaik',
+        'Daun keriting dan tidak simetris',
+        'Ukuran daun mengecil',
+        'Pertumbuhan kerdil',
+        'Tunas baru cacat atau bengkok'
+      ],desc:'Virus mengganggu pewarnaan daun dan pertumbuhan; sering menyebar oleh serangga vektor.',treatment:'Tidak ada obat spesifik — potong dan buang tanaman terinfeksi, kendalikan vektor.',prevention:'Gunakan benih sehat, kontrol vektor (serangga), kebersihan kebun.'},
+
+      {id:9,name:'Nematoda Akar (Meloidogyne spp.)',cause:'Nematoda',symptoms:[
+        'Pembengkakan (gall) pada akar',
+        'Pertumbuhan sangat lambat',
+        'Daun menguning',
+        'Tanaman kerdil walau dipupuk',
+        'Mudah terserang penyakit lain'
+      ],desc:'Nematoda menyebabkan pembengkakan akar sehingga gangguan penyerapan air dan nutrisi.',treatment:'Gunakan tanaman penutup, solarisasi tanah, dan nematisida spesifik jika diperlukan.',prevention:'Rotasi tanaman, gunakan bibit tahan, sanitasi media tanam.'},
+
+      {id:10,name:'Busuk Batang oleh Bakteri',cause:'Bakteri',symptoms:[
+        'Batang basah dan berbau tidak sedap',
+        'Daun layu pada siang hari, pulih sedikit saat malam',
+        'Luka basah pada batang menyebar cepat',
+        'Cairan lendir keluar dari batang ketika ditekan',
+        'Kematian tanaman terjadi mendadak'
+      ],desc:'Infeksi bakteri yang menyebabkan pembusukan basah pada batang dan jaringan lunak.',treatment:'Buang bagian terinfeksi, aplikasi bakterisida jika tersedia, sanitasi.',prevention:'Hindari luka mekanis, sanitasi alat, drainase baik.'},
+
+      // Perkebunan/spesifik
+      {id:11,name:'BPB – Ganoderma boninense',cause:'Jamur',symptoms:[
+        'Daun tua menguning',
+        'Daun muda tumbuh kecil dan kaku',
+        'Pangkal batang membusuk',
+        'Jamur berbentuk kipas muncul pada batang',
+        'Tanaman tumbang dan mati'
+      ],desc:'Jamur yang menyebabkan pembusukan pangkal pada tanaman perkebunan seperti sawit/kelapa.',treatment:'Ganti tanaman, sanitasi area, pembuangan akar terinfeksi.',prevention:'Tanam jarak yang tepat, sanitasi, pilih bibit sehat.'},
+
+      {id:12,name:'Penyakit Layu (umum)',cause:'Bervariasi (jamur/bakteri)',symptoms:[
+        'Daun layu dan kusam',
+        'Pertumbuhan sangat lambat',
+        'Pelepah mengering pada bagian ujung',
+        'Akar membusuk',
+        'Tanaman mati perlahan'
+      ],desc:'Gejala umum layu yang dapat disebabkan beberapa patogen atau kondisi lingkungan.',treatment:'Identifikasi penyebab spesifik; perbaiki drainase, sanitasi, perlakukan sesuai agen penyebab.',prevention:'Manajemen air, rotasi, bibit sehat.'},
+
+      {id:13,name:'Bercak Daun Helminthosporium',cause:'Jamur',symptoms:[
+        'Bercak cokelat pada daun',
+        'Tepi bercak berwarna lebih gelap',
+        'Bercak melebar dan mengering',
+        'Daun menjadi rapuh',
+        'Penurunan fotosintesis'
+      ],desc:'Jamur bercak daun yang menurunkan area fotosintesis.',treatment:'Buang daun terinfeksi, fungisida kontak, rotasi tanaman.',prevention:'Benih bersih, jarak tanam, kontrol kelembapan.'},
+
+      {id:14,name:'Kuning Letal (Lethal Yellowing Disease)',cause:'Mungkin phytoplasma/vektor',symptoms:[
+        'Daun bawah menguning total',
+        'Buah muda gugur',
+        'Jantung kelapa (umbut) membusuk',
+        'Daun muda tidak berkembang',
+        'Tanaman mati dalam beberapa bulan'
+      ],desc:'Penyakit serius pada kelapa/sawit yang menyebabkan kematian cepat.',treatment:'Ganti tanaman, kontrol vektor, gunakan bahan tanam sehat.',prevention:'Karantina, kontrol vektor, pemantauan dini.'},
+
+      {id:15,name:'Busuk Umbut – Phytophthora palmivora',cause:'Oomycete',symptoms:[
+        'Daun muda (spear leaf) mengering',
+        'Ujung daun cokelat dan busuk',
+        'Umbut berbau busuk',
+        'Pertumbuhan terhenti',
+        'Tajuk runtuh'
+      ],desc:'Oomycete yang menyerang umbut/daun muda terutama di kondisi lembap.',treatment:'Perbaiki drainase, fungisida sesuai rekomendasi, buang bagian terinfeksi.',prevention:'Hindari genangan, sanitasi.'},
+
+      {id:16,name:'Karat Daun Kelapa',cause:'Jamur',symptoms:[
+        'Bintik-bintik jingga pada daun',
+        'Permukaan daun berdebu (spora jamur)',
+        'Daun menguning',
+        'Daun mengering dari ujung',
+        'Produksi menurun'
+      ],desc:'Karat daun spesifik pada kelapa yang menurunkan kualitas daun.',treatment:'Kontrol fungisida, buang daun terinfeksi, kontrol kelembapan.',prevention:'Pemangkasan, ventilasi, varietas tahan.'},
+
+      {id:17,name:'Antraknosa (Colletotrichum) - versi perkebunan',cause:'Jamur',symptoms:[
+        'Bercak hitam kecil pada daun atau buah muda',
+        'Bercak membesar membentuk lingkaran',
+        'Daun tampak berkerut',
+        'Buah muda gugur',
+        'Pertumbuhan terganggu'
+      ],desc:'Varian antraknosa pada tanaman perkebunan.',treatment:'Sanitasi, fungisida, benih sehat.',prevention:'Rotasi, kontrol kelembapan.'},
+
+      {id:18,name:'Busuk Akar (Root Rot)',cause:'Jamur/oomycete',symptoms:[
+        'Akar hitam dan busuk',
+        'Tanaman mudah layu',
+        'Daun menguning',
+        'Pertumbuhan terhambat',
+        'Tanaman roboh'
+      ],desc:'Pembusukan akar oleh berbagai patogen, sering di tanah tergenang.',treatment:'Perbaiki drainase, aplikasikan fungisida tanah, ganti media jika perlu.',prevention:'Drainase baik, sanitasi, jangan overwatering.'},
+
+      {id:19,name:'Jamur Upas (Upasia salmonicolor)',cause:'Jamur',symptoms:[
+        'Batang muncul benang jamur merah muda',
+        'Daun layu tanpa sebab',
+        'Batang mengering',
+        'Cabang atau pelepah mudah patah',
+        'Tanaman melemah'
+      ],desc:'Jamur yang melemahkan batang, terlihat benang berwarna pada permukaan.',treatment:'Buang bagian terinfeksi, sanitasi, fungisida jika relevan.',prevention:'Pemantauan rutin, sanitasi.'},
+
+      {id:20,name:'Nematoda Akar – versi perkebunan',cause:'Nematoda',symptoms:[
+        'Akar berbintil (gall)',
+        'Daun pucat',
+        'Pertumbuhan lambat',
+        'Tanaman sulit menyerap air',
+        'Produksi tandan menurun'
+      ],desc:'Nematoda mengganggu sistem akar pada skala besar di perkebunan.',treatment:'Rotasi, tanaman penutup, nematisida sesuai aturan.',prevention:'Bibit bersih, sanitasi, rotasi.'}
+    ];
+
+    // flatten all symptoms for checkbox list (unique)
+    const allSymptoms = [...new Set(DISEASES.flatMap(d=>d.symptoms))];
+
+    const symptomListEl = document.getElementById('symptomList');
+    const diseaseListEl = document.getElementById('diseaseList');
+    const outputEl = document.getElementById('output');
+
+    function renderSymptomCheckboxes(){
+      allSymptoms.forEach((s,i)=>{
+        const id = 's'+i;
+        const label = document.createElement('label');
+        label.className = 'symptom';
+        label.innerHTML = `<input type="checkbox" value="${s}" id="${id}" aria-label="${s}"><div style="font-size:0.95rem"><strong>${s}</strong></div>`;
+        symptomListEl.appendChild(label);
+      });
+    }
+
+    function renderDiseaseList(){
+      diseaseListEl.textContent = DISEASES.map(d=>`- ${d.name}\n  Gejala:\n    ${d.symptoms.map(x=>'- '+x).join('\n    ')}\n  Penyebab: ${d.cause}\n`).join('\n');
+    }
+
+    function diagnose(){
+      const checked = Array.from(document.querySelectorAll('#symptomList input:checked')).map(i=>i.value);
+      if(checked.length===0){ outputEl.innerHTML = '<p>Belum ada gejala yang dipilih. Silakan pilih gejala terlebih dahulu.</p>'; return }
+
+      // Score diseases by matched symptoms
+      const scores = DISEASES.map(d=>{
+        const matched = d.symptoms.filter(s=>checked.includes(s));
+        return {disease:d,matched,score:matched.length,percent: Math.round(matched.length / d.symptoms.length * 100)}
+      }).filter(x=>x.score>0).sort((a,b)=>b.score - a.score || b.percent - a.percent);
+
+      if(scores.length===0){ outputEl.innerHTML = '<p>Tidak ditemukan kecocokan gejala dengan database. Pertimbangkan konsultasi lapangan atau unggah foto untuk analisis.</p>'; return }
+
+      // Build HTML
+      const html = scores.map(s=>{
+        return `
+          <div class="item">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <div><strong>${s.disease.name}</strong> <span class="badge">${s.score} gejala cocok</span></div>
+              <div style="font-size:0.9rem;color:#3a5a3f">Kecocokan: ${s.percent}%</div>
+            </div>
+            <p style="margin:.6em 0"><strong>Penyebab:</strong> ${s.disease.cause}</p>
+            <p style="margin:.2em 0"><strong>Gejala yang cocok:</strong> <br> ` + '<ul>' + s.matched.map(m=>'<li>'+m+'</li>').join('') + '</ul>' + `</p>
+            <details>
+              <summary>Penjelasan & Penanganan</summary>
+              <p><strong>Ringkasan:</strong> ${s.disease.desc}</p>
+              <p><strong>Tindakan cepat:</strong> ${s.disease.treatment}</p>
+              <p><strong>Pencegahan jangka panjang:</strong> ${s.disease.prevention || 'Manajemen cultural, sanitasi, dan penggunaan bibit sehat.'}</p>
+            </details>
+          </div>
+        `
+      }).join('\n');
+
+      outputEl.innerHTML = html;
+    }
+
+    function clearSelection(){
+      document.querySelectorAll('#symptomList input:checked').forEach(cb=>cb.checked=false);
+      outputEl.innerHTML = '<p>Pilih gejala lalu klik <strong>Diagnosa</strong> untuk melihat hasil.</p>';
+    }
+
+    function copyResults(){
+      const text = document.getElementById('output').innerText.trim();
+      if(!text){ alert('Belum ada hasil untuk disalin.'); return }
+      navigator.clipboard.writeText(text).then(()=>alert('Hasil berhasil disalin ke clipboard.')).catch(()=>alert('Gagal menyalin — fitur mungkin tidak didukung di browser ini.'))
+    }
+
+    // init
+    renderSymptomCheckboxes();
+    renderDiseaseList();
+
+    document.getElementById('diagnoseBtn').addEventListener('click',diagnose);
+    document.getElementById('clearBtn').addEventListener('click',clearSelection);
+    document.getElementById('copyBtn').addEventListener('click',copyResults);
+  </script>
+</body>
+</html>
