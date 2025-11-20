@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Identifikasi Penyakit Tanaman Nilam - Kelompok 3</title>
+  <style>
+    :root{
+      --bg:#f4f7f3; --card:#ffffff; --accent:#1f8a4c; --muted:#6b7280; --glass: rgba(255,255,255,0.65);
+      --radius:14px; --shadow: 0 6px 20px rgba(11,20,13,0.08);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(180deg,#eef6ee 0%,var(--bg) 100%);color:#0b1a12}
+    .container{max-width:1100px;margin:28px auto;padding:24px}
+
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+    .brand{display:flex;align-items:center;gap:12px}
+    .logo{width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,#2e8f50,#5ad28a);display:flex;align-items:center;justify-content:center;color:white;font-weight:700;box-shadow:var(--shadow)}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:0;color:var(--muted);font-size:13px}
+
+    nav{display:flex;gap:8px}
+    .nav-btn{background:transparent;border:0;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer;color:var(--accent)}
+    .nav-btn.active{background:var(--card);box-shadow:var(--shadow)}
+
+    .grid{display:grid;grid-template-columns:360px 1fr;gap:20px}
+
+    /* left panel */
+    .panel{background:var(--card);padding:16px;border-radius:var(--radius);box-shadow:var(--shadow)}
+    .group-card{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:12px;background:linear-gradient(180deg,#fff,#f8fff8);}
+    .member{display:flex;justify-content:space-between;padding:8px 6px;border-radius:8px}
+    .member strong{font-size:14px}
+    .member small{color:var(--muted)}
+
+    /* symptom selector */
+    .symptom-section{display:flex;flex-direction:column;gap:12px}
+    .symptom-tags{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{padding:8px 12px;border-radius:999px;border:1px solid rgba(0,0,0,0.06);background:var(--glass);cursor:pointer;user-select:none;font-size:13px}
+    .chip.selected{background:linear-gradient(90deg, #dff7df, #e8fff0);border-color:rgba(31,138,76,0.12);box-shadow:0 6px 18px rgba(31,138,76,0.06)}
+
+    /* results */
+    .results{display:flex;flex-direction:column;gap:12px}
+    .disease-card{display:flex;flex-direction:column;gap:8px;padding:12px;border-radius:12px;background:linear-gradient(180deg,#fff,#fbfff9);box-shadow:var(--shadow)}
+    .disease-head{display:flex;align-items:center;justify-content:space-between}
+    .badge{font-size:12px;padding:6px 8px;border-radius:8px;background:rgba(31,138,76,0.12);color:var(--accent)}
+    .progress{height:10px;background:#eef3ee;border-radius:8px;overflow:hidden}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,#2e8f50,#6ad88a);width:0%}
+    .sym-match{display:flex;gap:8px;flex-wrap:wrap}
+    .sym-item{font-size:12px;padding:6px 8px;border-radius:8px;background:#f4f7f3;border:1px dashed rgba(0,0,0,0.04)}
+
+    /* print button and controls */
+    .controls{display:flex;gap:10px;align-items:center}
+    .btn{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:700}
+    .btn.primary{background:var(--accent);color:white}
+    .btn.ghost{background:transparent;border:1px solid rgba(0,0,0,0.06)}
+
+    footer{margin-top:18px;text-align:center;color:var(--muted);font-size:13px}
+
+    /* responsive */
+    @media (max-width:900px){.grid{grid-template-columns:1fr;}.logo{width:44px;height:44px}}
+
+    /* small animations */
+    .fade{animation:fadeIn .36s ease both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo">N3</div>
+        <div>
+          <h1>Kelompok 3 — Identifikasi Penyakit Tanaman Nilam</h1>
+          <p class="lead">Pilih gejala, dapatkan diagnosis cepat dan cetak hasil.</p>
+        </div>
+      </div>
+      <nav>
+        <button class="nav-btn active" data-page="group">Informasi Kelompok</button>
+        <button class="nav-btn" data-page="diagnosa">Diagnosa Penyakit</button>
+      </nav>
+    </header>
+
+    <main class="grid">
+      <!-- Left column: group or controls -->
+      <aside id="left" class="panel fade">
+        <!-- group info (default) -->
+        <section id="group-page">
+          <h3>Informasi Kelompok</h3>
+          <div class="group-card" style="margin-top:8px">
+            <div class="member"><strong>Naya Gisela Pulisir</strong><small>250311080012</small></div>
+            <div class="member"><strong>Nivia Gloria Aguw</strong><small>250311080013</small></div>
+            <div class="member"><strong>Prayer Hiskia Maarthen Gonie</strong><small>250311080014</small></div>
+            <div class="member"><strong>Ravael Jireh Ilham Sitinjak</strong><small>250311080015</small></div>
+            <div class="member"><strong>Atalia G. M. Pasla</strong><small>250311080016</small></div>
+          </div>
+          <p style="margin-top:12px;color:var(--muted);font-size:13px">Halaman ini berisi informasi kelompok dan identitas anggota. Gunakan menu Diagnosa untuk mencari penyakit berdasarkan gejala.</p>
+        </section>
+
+        <!-- diagnosa controls (hidden by default) -->
+        <section id="diagnosa-controls" style="display:none">
+          <h3>Pilih Gejala</h3>
+          <div style="margin-top:8px;color:var(--muted);font-size:13px">Pilih beberapa gejala dari daftar di bawah. Sistem akan mencocokkan gejala ke penyakit yang paling mungkin.</div>
+
+          <div style="margin-top:12px" class="symptom-section">
+            <div class="symptom-tags" id="symptomTags"></div>
+          </div>
+
+          <div style="margin-top:14px" class="controls">
+            <button class="btn primary" id="diagnoseBtn">Diagnosa</button>
+            <button class="btn ghost" id="clearBtn">Bersihkan</button>
+            <button class="btn" id="printBtn">Cetak Hasil</button>
+          </div>
+        </section>
+
+      </aside>
+
+      <!-- Right column: results / content -->
+      <section id="content" class="fade">
+        <!-- default: welcome / empty -->
+        <div id="welcome" class="panel">
+          <h3>Selamat datang</h3>
+          <p class="lead">Pilih menu <strong>Diagnosa</strong> untuk mulai memilih gejala. Sistem akan menampilkan hasil diagnosis beserta tingkat kecocokan dan gejala yang cocok.</p>
+        </div>
+
+        <!-- results will be injected here -->
+        <div id="results" style="margin-top:16px"></div>
+      </section>
+    </main>
+
+    <footer>Kelompok 3 — Sistem Identifikasi Penyakit Tanaman Nilam</footer>
+  </div>
+
+  <script>
+    // Data: diseases and their symptoms (label -> normalized key)
+    const diseases = [
+      { id:'fusarium', name:'Layu Fusarium (Fusarium oxysporum)', symptoms:[
+        'Daun menguning mulai dari bawah',
+        'Tangkai daun layu meski tanah masih basah',
+        'Akar berwarna cokelat gelap',
+        'Batang bawah menghitam dan membusuk',
+        'Pertumbuhan tanaman terhambat drastis'
+      ]},
+      { id:'rhizoctonia', name:'Busuk Akar – Rhizoctonia', symptoms:[
+        'Daun pucat dan menggulung',
+        'Tanaman mudah tercabut karena akar rapuh',
+        'Akar berwarna cokelat kemerahan',
+        'Pertumbuhan terhambat dan kerdil',
+        'Pangkal batang lembek'
+      ]},
+      { id:'sclerotium', name:'Busuk Pangkal Batang (Sclerotium rolfsii)', symptoms:[
+        'Pangkal batang berwarna cokelat basah',
+        'Miselium putih seperti kapas di sekitar pangkal',
+        'Daun layu mendadak',
+        'Buah sklerotia kecil seperti biji sawi di permukaan tanah',
+        'Tanaman roboh dan mati cepat'
+      ]},
+      { id:'rust', name:'Karat Daun (Rust)', symptoms:[
+        'Bercak kuning pada permukaan daun',
+        'Bintik karat cokelat-oranye di bawah daun',
+        'Daun mudah rontok',
+        'Pertumbuhan tunas melambat',
+        'Daun mengering dari tepi'
+      ]},
+      { id:'anthracnose', name:'Antraknosa (Colletotrichum spp.)', symptoms:[
+        'Bercak cokelat kehitaman pada daun',
+        'Lesi berbentuk bulat dengan tepi lebih gelap',
+        'Daun berlubang',
+        'Batang muda menghitam',
+        'Pertumbuhan terganggu, pucuk melemah'
+      ]},
+      { id:'phytophthora', name:'Busuk Daun (Phytophthora)', symptoms:[
+        'Daun tampak berair seperti terbakar',
+        'Bercak melebar dan cepat menyatu',
+        'Daun rontok sebelum kering',
+        'Batang muda ikut membusuk',
+        'Area lembap memperparah penyebaran'
+      ]},
+      { id:'powdery', name:'Embun Tepung (Powdery mildew)', symptoms:[
+        'Lapisan putih seperti tepung di permukaan daun',
+        'Daun menguning',
+        'Pertumbuhan daun sangat lambat',
+        'Daun melengkung dan mengering',
+        'Serangan berat menyebabkan tanaman kerdil'
+      ]},
+      { id:'mosaic', name:'Virus Mosaic Nilam', symptoms:[
+        'Daun belang kuning-hijau seperti mozaik',
+        'Daun keriting dan tidak simetris',
+        'Ukuran daun mengecil',
+        'Pertumbuhan kerdil',
+        'Tunas baru cacat atau bengkok'
+      ]},
+      { id:'nematoda', name:'Nematoda Akar (Meloidogyne spp.)', symptoms:[
+        'Pembengkakan (gall) pada akar',
+        'Pertumbuhan sangat lambat',
+        'Daun menguning merata',
+        'Tanaman kerdil walau dipupuk',
+        'Mudah terserang penyakit lain'
+      ]},
+      { id:'bakteri', name:'Busuk Batang oleh Bakteri', symptoms:[
+        'Batang basah dan berbau tidak sedap',
+        'Daun layu pada siang hari, pulih sedikit saat malam',
+        'Luka basah pada batang menyebar cepat',
+        'Cairan lendir keluar dari batang ketika ditekan',
+        'Kematian tanaman terjadi mendadak'
+      ]}
+    ];
+
+    // Build unified unique symptom list
+    const allSymptoms = [];
+    diseases.forEach(d=> d.symptoms.forEach(s=> allSymptoms.push(s)));
+    const uniqueSymptoms = [...new Set(allSymptoms)];
+
+    // Render symptom chips
+    const symptomTags = document.getElementById('symptomTags');
+    uniqueSymptoms.forEach((s, idx)=>{
+      const chip = document.createElement('div');
+      chip.className='chip';
+      chip.textContent = s;
+      chip.dataset.sym = s;
+      chip.onclick = ()=> chip.classList.toggle('selected');
+      symptomTags.appendChild(chip);
+    });
+
+    // Page nav
+    const navButtons = document.querySelectorAll('.nav-btn');
+    navButtons.forEach(b=> b.addEventListener('click', ()=>{
+      navButtons.forEach(x=> x.classList.remove('active'));
+      b.classList.add('active');
+      const page = b.dataset.page;
+      document.getElementById('group-page').style.display = page==='group'? 'block':'none';
+      document.getElementById('diagnosa-controls').style.display = page==='diagnosa'? 'block':'none';
+      // change right content
+      document.getElementById('welcome').style.display = page==='group'? 'block':'none';
+      document.getElementById('results').innerHTML = page==='diagnosa' ? renderEmptyForDiagnosa() : '';
+    }));
+
+    function renderEmptyForDiagnosa(){
+      return `<div class="panel"><h3>Diagnosa Penyakit</h3><p class="lead">Pilih gejala pada panel kiri, lalu klik <strong>Diagnosa</strong>.</p></div>`;
+    }
+
+    // Diagnose logic
+    const diagnoseBtn = document.getElementById('diagnoseBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const printBtn = document.getElementById('printBtn');
+    const resultsEl = document.getElementById('results');
+
+    diagnoseBtn.addEventListener('click', ()=>{
+      const selected = Array.from(document.querySelectorAll('.chip.selected')).map(n=>n.dataset.sym);
+      if(selected.length===0){
+        resultsEl.innerHTML = `<div class="panel"><strong>Pilih minimal 1 gejala</strong> untuk memulai diagnosa.</div>`;
+        return;
+      }
+
+      // score each disease
+      const scored = diseases.map(d=>{
+        const matches = d.symptoms.filter(s=> selected.includes(s));
+        const score = Math.round((matches.length / d.symptoms.length) * 100);
+        return {...d, matches, score};
+      }).sort((a,b)=> b.score - a.score || b.matches.length - a.matches.length);
+
+      // top 5
+      const top = scored.filter(s=> s.score>0);
+      renderResults(top, selected, scored.slice(0,3));
+    });
+
+    clearBtn.addEventListener('click', ()=>{
+      document.querySelectorAll('.chip.selected').forEach(c=> c.classList.remove('selected'));
+      resultsEl.innerHTML = '';
+    });
+
+    printBtn.addEventListener('click', ()=>{
+      // print only the results area; fallback to full page
+      if(resultsEl.innerHTML.trim() === ''){
+        window.print();
+        return;
+      }
+      const orig = document.body.innerHTML;
+      const html = `
+        <div style="padding:20px;font-family:Inter,Arial">
+          <h2>Hasil Diagnosa — Kelompok 3</h2>
+          ${resultsEl.innerHTML}
+          <p style="margin-top:14px;color:#666;font-size:13px">Dicetak: ${new Date().toLocaleString()}</p>
+        </div>`;
+      document.body.innerHTML = html;
+      window.print();
+      location.reload();
+    });
+
+    function renderResults(list, selectedAll, top3){
+      if(list.length===0){
+        resultsEl.innerHTML = `<div class="panel"><h3>Hasil</h3><p class="lead">Tidak ditemukan kecocokan gejala. Coba pilih gejala lain atau tambah jumlah gejala yang sesuai.</p></div>`;
+        return;
+      }
+
+      let html = `<div class="panel"><h3>Hasil Diagnosa</h3><p class="lead">Gejala terpilih: <strong>${selectedAll.length}</strong></p></div>`;
+
+      // show top matches
+      html += '<div style="margin-top:12px;display:grid;gap:12px">';
+      list.forEach(d=>{
+        html += `<div class="disease-card">
+          <div class="disease-head">
+            <div>
+              <strong>${d.name}</strong>
+              <div style="font-size:13px;color:var(--muted);margin-top:6px">${d.matches.length} gejala cocok dari ${d.symptoms.length}</div>
+            </div>
+            <div style="text-align:right">
+              <div class="badge">Kemungkinan ${d.score}%</div>
+            </div>
+          </div>
+          <div class="progress" aria-hidden><i style="width:${d.score}%"></i></div>
+          <div style="display:flex;justify-content:space-between;gap:8px;align-items:center">
+            <div style="flex:1">
+              <div style="font-size:13px;color:var(--muted);margin-top:8px">Gejala yang cocok:</div>
+              <div class="sym-match" style="margin-top:8px">`;
+        d.matches.forEach(m=> html += `<div class="sym-item">${m}</div>`);
+        html += `</div>
+            </div>
+            <div style="width:160px;text-align:right">
+              <div style="font-size:13px;color:var(--muted)">Gejala lengkap penyakit:</div>
+              <div style="margin-top:8px;font-size:13px">${d.symptoms.length} item</div>
+            </div>
+          </div>
+        </div>`;
+      });
+      html += '</div>';
+
+      // suggestions / next steps
+      html += `<div style="margin-top:12px" class="panel"><h4>Saran Tindak Lanjut</h4>
+        <ul style="margin:8px 0 0 18px;color:var(--muted)">
+          <li>Konfirmasi dengan pemeriksaan akar dan pangkal batang bila perlu.</li>
+          <li>Gunakan sanitasi lahan, rotasi tanaman, dan fungisida/antibakteri sesuai anjuran ahli untuk penyakit jamur/bakteri.</li>
+          <li>Untuk gejala virus dan nematoda, pertimbangkan penggantian varietas dan pengendalian vektor/nematoda.</li>
+        </ul>
+      </div>`;
+
+      resultsEl.innerHTML = html;
+    }
+
+    // initialize: show group page by default; render nothing in results
+    resultsEl.innerHTML = '';
+  </script>
+</body>
+</html>
